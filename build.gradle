@@ -1,0 +1,81 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "me.gking2224:BuildToolsGradlePlugin:0.1.8-SNAPSHOT"
+    }
+}
+plugins {
+  id 'net.saliman.cobertura' version '2.3.2'
+}
+
+
+apply plugin: 'me.gking2224.buildtools'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+ext {
+      springVersion = "4.3.1.RELEASE"
+      jacksonVersion = "2.8.0"
+      slf4jVersion = "1.7.21"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+
+//integrationTest.outputs.upToDateWhen { false }
+
+dependencies {
+    
+    // WEB
+    compile("org.springframework:spring-context-support:$springVersion")
+    compile("org.springframework:spring-web:$springVersion")
+    compile("javax.servlet:javax.servlet-api:3.1.0")
+    
+    // UTILS
+    compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    compile group: 'com.jayway.jsonpath', name: 'json-path', version: '2.2.0'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    
+    
+    // TEST UTILS (in compile as these will be used by client libraries in _their_ tests)
+    compile group: 'junit', name: 'junit', version: '4.12'
+    compile "org.springframework:spring-test:$springVersion"
+
+            
+    // LOGGING
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    
+}
+
+configurations.all {
+    exclude group: "org.slf4j", module: "slf4j-log4j12"
+    exclude group: "log4j", module: "log4j"
+    exclude group: "commons-logging", module: "commons-logging"
+}
+//cobertura {
+//    coverageDirs << file("build/integration-classes")
+//}
+configurations {
+  published
+}
+
