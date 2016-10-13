@@ -1,4 +1,4 @@
-package me.gking2224.common.utils;
+package me.gking2224.common.utils.test;
 
 import static org.junit.Assert.fail;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import me.gking2224.common.utils.JsonUtil;
 
 public class JsonMvcTestHelper {
 
@@ -54,7 +56,7 @@ public class JsonMvcTestHelper {
     public static ResultActions doMethod(
             MockMvc mockMvc, Object content, String url, Function<ResultActions, ResultActions> checks, MockHttpServletRequestBuilder builder) throws Exception {
         if (content != null) {
-            builder = builder.content(json.objectToJson(content));
+            builder = builder.content(json.serializeObject(content));
         }
         ResultActions result = mockMvc.perform(builder.header(CONTENT_TYPE, APPLICATION_JSON_VALUE).accept(APPLICATION_JSON_VALUE));
         return checks.apply(result);

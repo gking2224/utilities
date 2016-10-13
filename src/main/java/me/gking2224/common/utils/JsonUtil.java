@@ -1,36 +1,62 @@
 package me.gking2224.common.utils;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 
 import net.minidev.json.JSONArray;
 
-@Configuration
-public class JsonUtil {
+@Component
+public class JsonUtil extends ObjectSerializer {
+    
+    private static Set<MediaType> mediaTypes;
+    static {
+        mediaTypes = new HashSet<MediaType>(Arrays.asList(APPLICATION_JSON, APPLICATION_JSON_UTF8, TEXT_PLAIN));
+    }
 
     private ObjectMapper om = new ObjectMapper();
-    public String mapToJson(Map<String, Object> map) throws JsonProcessingException {
-        return om.writeValueAsString(map);
+    
+    @Override
+    public String serializeMap(Map<String, Object> map) throws ObjectSerializationException {
+        try {
+            return om.writeValueAsString(map);
+        } catch (IOException e) {
+            throw new ObjectSerializationException(e.getMessage(), e);
+        }
     }
-    public String objectToJson(Object o) throws JsonProcessingException {
-        return om.writeValueAsString(o);
+    @Override
+    public String serializeObject(Object o) throws ObjectSerializationException {
+        try {
+            return om.writeValueAsString(o);
+        } catch (IOException e) {
+            throw new ObjectSerializationException(e.getMessage(), e);
+        }
     }
     
     public String getPathValue(String json, String path) {
         return JsonPath.read(json, path);
     }
     
-    public <T> T parseJson(String json, Class<T> clazz)
-            throws JsonParseException, JsonMappingException, IOException {
-        return om.readValue(json, clazz);
+    @Override
+    public <T> T deserializeToObject(String json, Class<T> clazz)
+            throws ObjectSerializationException {
+        try {
+            return om.readValue(json, clazz);
+        } catch (IOException e) {
+            throw new ObjectSerializationException(e.getMessage(), e);
+        }
     }
 
     public Object[] getArray(String json, String path) {
@@ -54,6 +80,11 @@ public class JsonUtil {
 
     public Object getValue(String json, String path) {
         return JsonPath.parse(json).read(path);
+    }
+
+    @Override
+    public Set<MediaType> getSupportedMediaTypes() {
+        return mediaTypes;
     }
 
 }
