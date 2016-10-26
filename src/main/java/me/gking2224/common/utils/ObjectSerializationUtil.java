@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import me.gking2224.common.utils.ObjectSerializer.ObjectSerializationException;
-
 @Component
 public class ObjectSerializationUtil implements InitializingBean {
 

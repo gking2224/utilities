@@ -69,4 +69,9 @@ public class NestedProperties extends Properties {
         }
         return value;
     }
+
+    @Override
+    public String toString() {
+        return String.format("NestedProperties [prefix=%s, wrapped=%s]", prefix, wrapped);
+    }
 }
