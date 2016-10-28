@@ -56,7 +56,8 @@ public class JsonMvcTestHelper {
     public static ResultActions doMethod(
             MockMvc mockMvc, Object content, String url, Function<ResultActions, ResultActions> checks, MockHttpServletRequestBuilder builder) throws Exception {
         if (content != null) {
-            builder = builder.content(json.serializeObject(content));
+            String strContent = (content instanceof String) ? (String)content : json.serializeObject(content);
+            builder = builder.content(strContent);
         }
         ResultActions result = mockMvc.perform(builder.header(CONTENT_TYPE, APPLICATION_JSON_VALUE).accept(APPLICATION_JSON_VALUE));
         return checks.apply(result);
