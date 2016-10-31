@@ -45,7 +45,6 @@ public class PrefixedProperties extends Properties {
     }
 
     @Override public Object get(final Object key) {
-        if (!prefixMatches(key)) return null;
         return getOrDefault(key, null);
     }
     
@@ -73,6 +72,7 @@ public class PrefixedProperties extends Properties {
     }
     
     private Object doWithKey(final Object initialKey, Function<Object,Object> func) {
+        if (!prefixMatches(initialKey)) return null;
         if (initialKey == null) return null;
         Object key = removePrefix(initialKey);
         return func.apply(key);

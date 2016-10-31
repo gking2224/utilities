@@ -24,4 +24,30 @@ public class PrefixedPropertiesTest {
         
     }
 
+    @Test
+    public void testGetProperty() {
+        Properties p = new Properties();
+        p.put("a", "b");
+        Properties pp = new PrefixedProperties("x", p);
+        
+        assertTrue(pp.containsKey("x.a"));
+        assertFalse(pp.containsKey("a"));
+        assertEquals("b", pp.getProperty("x.a"));
+        assertNull(pp.getProperty("a"));
+        
+    }
+
+    @Test
+    public void testGetPropertyWithLongKey() {
+        Properties p = new Properties();
+        p.put("a", "b");
+        Properties pp = new PrefixedProperties("abcdef", p);
+        
+        assertTrue(pp.containsKey("abcdef.a"));
+        assertFalse(pp.containsKey("a"));
+        assertEquals("b", pp.getProperty("abcdef.a"));
+        assertNull(pp.getProperty("a"));
+        
+    }
+
 }
