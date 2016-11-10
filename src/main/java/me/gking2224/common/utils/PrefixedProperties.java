@@ -1,6 +1,13 @@
 package me.gking2224.common.utils;
 
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -23,7 +30,7 @@ public class PrefixedProperties extends Properties {
     private String dottedPrefix;
 
     public PrefixedProperties(final String prefix, final Properties wrapped) {
-        super(wrapped);
+        super();
         this.prefix = prefix;
         this.dottedPrefix = prefix + ".";
         this.wrapped = wrapped;
@@ -41,7 +48,9 @@ public class PrefixedProperties extends Properties {
     
     private String removePrefix(final Object k) {
         String key = stringKey(k);
-        return key.substring(dottedPrefix.length());
+        if (key.startsWith(dottedPrefix))
+            return key.substring(dottedPrefix.length());
+        else return key;
     }
 
     @Override public Object get(final Object key) {
@@ -54,7 +63,7 @@ public class PrefixedProperties extends Properties {
     }
 
     @Override public Object getOrDefault(Object key, Object defaultValue) {
-        return doWithKeyOrDefault(key, defaultValue, (k)-> wrapped.get(k));
+        return doWithKeyOrDefault(key, defaultValue, (k)-> wrapped.getProperty((String)k));
     }
     
     @Override public String getProperty(String key) {
@@ -76,6 +85,47 @@ public class PrefixedProperties extends Properties {
         if (initialKey == null) return null;
         Object key = removePrefix(initialKey);
         return func.apply(key);
+    }
+    
+    public Properties unwrap() {
+        Properties rv = new Properties();
+        Enumeration<?> keys = wrapped.propertyNames();
+
+        while (keys.hasMoreElements()) {
+            Object o = keys.nextElement();
+            String key = (String)o;
+            String value = getProperty(dottedPrefix+key);
+            rv.put(key,  value);
+        }
+        return rv;
+    }
+    
+    public Set<Map.Entry<Object,Object>> entrySet() {
+        Set<Map.Entry<Object, Object>> rv = new HashSet<Map.Entry<Object,Object>>();
+        Enumeration<?> keys = wrapped.propertyNames();
+        while (keys.hasMoreElements()) {
+            Object o= keys.nextElement();
+            String key = prefix+"."+((String)o);
+            Object value = getProperty(key);
+            rv.add(new AbstractMap.SimpleEntry<Object, Object>(o, value));
+        };
+        return rv;
+    }
+    
+    public synchronized Enumeration<Object> keys() {
+        Enumeration<Object> keys = wrapped.keys();
+        Hashtable<Object,Object> ht = new Hashtable<Object,Object>();
+        Object value = new Object();
+        while (keys.hasMoreElements()) {
+            Object o = keys.nextElement();
+            String key = (String)o;
+            ht.put(prefix+"."+key, value);
+        }
+        return ht.keys();
+    }
+    public Enumeration<?> propertyNames() {
+        Enumeration<?> propNames = super.propertyNames();
+        return propNames;
     }
 
     @Override

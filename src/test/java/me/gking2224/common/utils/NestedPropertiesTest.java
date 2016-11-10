@@ -1,6 +1,7 @@
 package me.gking2224.common.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
 
@@ -94,6 +95,30 @@ public class NestedPropertiesTest {
         NestedProperties np3 = new NestedProperties("state", np2);
         
         assertEquals("global", np3.getProperty("value"));
+    }
+
+    @Test
+    public void testPutAll() {
+        Properties fallback = new Properties();
+        fallback.put("c", "d");
+        fallback.put("fallback.c", "fallback.d");
+        Properties fallbackNested = new NestedProperties("fallback", fallback);
+        
+        
+        
+        Properties p = new Properties(fallbackNested);
+        p.put("a", "b");
+        p.put("local.a", "local.b");
+        Properties nested = new NestedProperties("local", p);
+
+        Properties blank = new Properties();
+        blank.putAll(nested);
+        assertTrue(blank.containsKey("a"));
+        assertTrue(blank.containsKey("local.a"));
+        assertEquals("local.b", blank.get("a"));
+        
+        assertTrue(blank.containsKey("c"));
+        assertEquals("fallback.d", blank.get("c"));
     }
 
 }
